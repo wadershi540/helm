@@ -1,0 +1,16 @@
+global: 
+  # data01: 
+  data02: sub1.data02
+  # data03: 
+  data04: sub1.data04
+  # data05: 
+  data06: sub1.data06
+  data07: sub1.data07
+
+# data11: 
+data12: sub1.data12
+# data13: 
+data14: sub1.data14
+# data15: 
+data16: sub1.data16
+data17: sub1.data17

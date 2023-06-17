@@ -1,0 +1,17 @@
+by_import_global: # by_import_global 是整個用被共用的 root data，名稱可隨意取，但在 import-values 要上對應的名稱
+  # data01: 
+  # data02:
+  data03: common.data03
+  data04: common.data04
+  data05: common.data05
+  # data06:
+  data07: common.data07
+
+by_import:
+  # data11: 
+  # data12:
+  data13: common.data13
+  data14: common.data14
+  data15: common.data15
+  # data16:
+  data17: common.data17
