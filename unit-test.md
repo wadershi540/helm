@@ -25,3 +25,46 @@ aaa: |
 延伸問題：
 * 上面 t 檔案在部屬的時候是否會有問題? 是否會被當成 k8s resource 部屬?
 * t 檔案是否可以拿來執行 unit test
+
+# Helm Unit Test 無法測試非 .yaml 結尾的檔案
+
+根據下面測試結果，雖然 `helm template` 可以渲染 `templates/t` 檔案，但實際上 unit test 卻無法針對 `templates/t` 做測試。
+
+```bash
+$ ls templates/t
+templates/t
+$ cat tests/t_test.yaml 
+templates:
+  - templates/t
+tests:
+  - it: should pass
+    asserts:
+      - isSubset:
+          path: aaa
+          content:
+            b = bbb
+$ helm unittest .
+
+### Chart [ chart-1 ] .
+
+ FAIL   tests/t_test.yaml
+        - should pass
+
+                - asserts[0] `isSubset` fail
+                        Error:
+                                template "chart-1/templates/t" not exists or not selected in test suite
+
+
+Charts:      1 failed, 0 passed, 1 total
+Test Suites: 1 failed, 0 passed, 1 total
+Tests:       1 failed, 0 passed, 1 total
+Snapshot:    0 passed, 0 total
+Time:        2.044841ms
+
+Error: plugin "unittest" exited with error
+```
+
+思考還可以怎麼做?
+* 在 templates 底下寫 yaml, 尋找可以 bypass 特定 yaml deploy 到 k8s
+* 使用 subchart 做測試?
+
