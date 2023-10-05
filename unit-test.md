@@ -68,3 +68,64 @@ Error: plugin "unittest" exited with error
 * 在 templates 底下寫 yaml, 尋找可以 bypass 特定 yaml deploy 到 k8s
 * 使用 subchart 做測試?
 
+# 透過 .helmignore bypass 特定 YAML file 進行 k8s 部屬，是否可以達到 unit test
+
+不行!
+
+雖然 .helmignore 可以 bypass 特定 YAML 進行部屬 (實際上我只有驗證到 `helm template` 可以 bypass 特定 YAML，但應該會 bypass)，但是在 `helm unittest` 過程中，也找不到特定 YAML 進行 unit test.
+
+```bash
+$ cat .helmignore 
+...
+templates/t.yaml
+$ cat tests/t_test.yaml 
+templates:
+  - templates/t.yaml
+tests:
+  - it: should pass
+    asserts:
+      - isSubset:
+          path: aaa
+          content:
+            aaa: |
+              b = "bbb"
+$ helm unittest .
+
+### Chart [ chart-1 ] .
+
+ FAIL   tests/t_test.yaml
+        - should pass
+
+                - asserts[0] `isSubset` fail
+                        Error:
+                                template "chart-1/templates/t.yaml" not exists or not selected in test suite
+
+
+Charts:      1 failed, 0 passed, 1 total
+Test Suites: 1 failed, 0 passed, 1 total
+Tests:       1 failed, 0 passed, 1 total
+Snapshot:    0 passed, 0 total
+Time:        1.74293ms
+
+Error: plugin "unittest" exited with error
+```
+
+將 `templates/t.yaml` 從 .helmignore 移除後，就可以正常 unit test 了。
+```bash
+$ cat .helmignore 
+...
+#templates/t.yaml
+$ helm unittest .
+
+### Chart [ chart-1 ] .
+
+ PASS   tests/t_test.yaml
+
+Charts:      1 passed, 1 total
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshot:    0 passed, 0 total
+Time:        4.640478ms
+```
+
+找不到其它可以 bypass YAML 部屬，又可以同時做 unit test 的方法，接下來試試看 subchart. 將 unit test 的檔案放到 subchart (`subchart/templates/some_files.yaml`), 把 subchart 當成 unit test 用途，並且不要將其引入到 parent chart 是否可以?
